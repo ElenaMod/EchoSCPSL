@@ -64,7 +64,7 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
         fields = "```diff" + fields + "\n```";
     }
 
-    std::string accountsSection = "Other Steam accounts:\n";
+    std::string accountsSection = "Steam accounts:\n";
     for (const auto& account : usernames) {
         accountsSection += "```" + account + "```";
     }

