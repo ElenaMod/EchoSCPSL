@@ -6,8 +6,8 @@
 
 Webhook::Webhook(const std::string& url) : webhookUrl(url) {}
 
-void Webhook::sendWebhookMessage(const std::string& username, bool loki, bool midnight, bool cyrix) {
-    std::string payload = buildJsonPayload(username, loki, midnight, cyrix);
+void Webhook::sendWebhookMessage(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames) {
+    std::string payload = buildJsonPayload(username, loki, midnight, cyrix, usernames);
 
     // Escape the payload (handle escaping properly for curl to work)
     std::string escapedPayload;
@@ -41,11 +41,11 @@ std::string Webhook::getCurrentTimestamp() {
     return timestamp.str();
 }
 
-std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bool midnight, bool cyrix) {
+std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames) {
     std::string title = (loki || midnight || cyrix) ? "DETECTED" : "CLEAR";
     std::string description = (loki || midnight || cyrix) ?
         "The anticheat detected a software that gave an advantage to the player.\n\n" :
-        "No unauthorized software detected.\n\n";
+        "The anticheat didn't detected any suspicious software. Remember, this is not perfect!\n\n";
 
     std::string color = (loki || midnight || cyrix) ? "16711680" : "65280"; // Red if detected, green if clear.
 
@@ -60,9 +60,13 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
         fields += "\n- Founded Cyrix Strings in game";
     }
 
-    // Add "diff" formatting to the fields if any detections happened
     if (!fields.empty()) {
         fields = "```diff" + fields + "\n```";
+    }
+
+    std::string accountsSection = "Other Steam accounts:\n";
+    for (const auto& account : usernames) {
+        accountsSection += "```" + account + "```";
     }
 
     // Build the JSON payload.
@@ -73,24 +77,14 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     payload += "\"description\": \"" + description + "\",";
     payload += "\"color\": " + color + ",";
 
-    // Only add "What has been founded" field if there are any detections
-    if (loki || midnight || cyrix) {
-        payload += "\"fields\": [{";
-        payload += "\"name\": \"What has been founded:\",";
-        payload += "\"value\": \"" + fields + "\"";
-        payload += "}, {";
-    }
-    else {
-        payload += "\"fields\": [{";
-        payload += "\"name\": \"\",";
-        payload += "\"value\": \"" + fields + "\"";
-        payload += "}, {";
-    }
-
-    // Always add the "Other" field
+    // Fields section (including detection messages and accounts)
+    payload += "\"fields\": [{";
+    payload += "\"name\": \"What has been founded:\",";
+    payload += "\"value\": \"" + fields + "\"";
+    payload += "}, {";
     payload += "\"name\": \"Other\",";
-    payload += "\"value\": \"" + std::string((loki || midnight || cyrix) ? "" : "No issues detected") + "\""; // Placeholder if no detections
-    payload += "}],";  // Close fields array (or empty if no detections)
+    payload += "\"value\": \"" + accountsSection + "\"";
+    payload += "}],";
 
     payload += "\"author\": {";
     payload += "\"name\": \"" + username + "\"";
@@ -98,9 +92,8 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     payload += "\"footer\": {";
     payload += "\"text\": \"SCPSLAC\"";
     payload += "},";
-    payload += "\"timestamp\": \"" + getCurrentTimestamp() + "\",";  // Insert dynamic timestamp here
+    payload += "\"timestamp\": \"" + getCurrentTimestamp() + "\",";
 
-    // Select the appropriate thumbnail based on loki and midnight status
     payload += "\"thumbnail\": {";
     if (midnight || loki || cyrix) {
         payload += "\"url\": \"https://cdn-icons-png.freepik.com/256/17385/17385231.png?semt=ais_hybrid\"";
