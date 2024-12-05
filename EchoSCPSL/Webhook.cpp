@@ -89,7 +89,7 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
 
         if (duration < 30) {
             title = "UNSURE";
-            description = "Some suspitious actions have been found, but not accytual proof.\n\n";
+            description = "Some suspitious actions have been found, but not acctual proof.\n\n";
             recy = true;
             color = "16742912";
             uns = true;
@@ -106,7 +106,7 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     }
 
     std::string url = "https://raw.githubusercontent.com/ElenaMod/EchoSCPSL/refs/heads/master/images/clear.png";
-    if (uns) {
+    if (uns && !det) {
         url = "https://raw.githubusercontent.com/ElenaMod/EchoSCPSL/refs/heads/master/images/unsure.png";
     }
     else if (det) {
