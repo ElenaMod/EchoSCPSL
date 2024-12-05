@@ -105,18 +105,18 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
         det = true;
     }
 
-    std::string url = "https://cdn-icons-png.freepik.com/256/5610/5610944.png?semt=ais_hybrid";
+    std::string url = "https://raw.githubusercontent.com/ElenaMod/EchoSCPSL/refs/heads/master/images/clear.png";
     if (uns) {
-        url = "https://cdn-icons-png.freepik.com/256/17385/17385231.png?semt=ais_hybrid";
+        url = "https://raw.githubusercontent.com/ElenaMod/EchoSCPSL/refs/heads/master/images/unsure.png";
     }
     else if (det) {
-        url = "https://cdn-icons-png.freepik.com/256/17385/17385231.png?semt=ais_hybrid";
+        url = "https://raw.githubusercontent.com/ElenaMod/EchoSCPSL/refs/heads/master/images/detected.png";
     }
 
     // Build fields dynamically
     std::string fields = "";
     if (recy) {
-        fields = "```/ Recycle bin was cleared not so much time ago```";
+        fields = "```ansi\n\\u001b[0;41m/ Recycle bin was cleared not much time ago.```";
     }
     if (loki) {
         fields += "```diff\n- Founded Loki Strings in game```";
