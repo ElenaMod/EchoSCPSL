@@ -161,16 +161,16 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     }
     accountsSection += "\n";
 
-    std::string recycleBinInfo = recycleBinClearTime.empty() ? "" : "Recycle bin time: \n```" + recycleBinClearTime + "```";
+    std::string recycleBinInfo = recycleBinClearTime.empty() ? "" : "Recycle bin time: \n```ansi\n\\u001b[2;45m" + recycleBinClearTime + "```\n";
 
-    std::string diagTrackInfo = isDiagTrackRunning ? "DiagTrack time: \n```" + uptimeDiagTrack + "```" : "DiagTrack time: \n```diff\n- Service is not running```";
-    std::string dpsInfo = isDpsRunning ? "DPS time: \n```" + uptimeDps + "```" : "DPS time: \n```diff\n- Service is not running```";
-    std::string pcaSvcInfo = isPcaSvcRunning ? "PcaSvc time: \n```" + uptimePcaSvc + "```" : "PcaSvc time: \n```diff\n- Service is not running```";
-    std::string sgrmBrokerInfo = isSgrmBrokerRunning ? "SgrmBroker time: \n```" + uptimeSgrmBroker + "```" : "SgrmBroker time: \n```diff\n- Service is not running```";
-    std::string sysMainInfo = isSysMainRunning ? "SysMain time: \n```" + uptimeSysMain + "```" : "SysMain time: \n```diff\n- Service is not running```";
-    std::string cdpSvcInfo = isCdpSvcRunning ? "CdpSvc time: \n```" + uptimeCdpSvc + "```" : "CdpSvc time: \n```diff\n- Service is not running```";
-    std::string ssdpsrvInfo = isSsdpsrvRunning ? "Ssdpsrv time: \n```" + uptimeSsdpsrv + "```" : "Ssdpsrv time: \n```diff\n- Service is not running```";
-    std::string umRdpServiceInfo = isUmRdpServiceRunning ? "UmRdpService time: \n```" + uptimeUmRdpService + "```" : "UmRdpService time: \n```diff\n- Service is not running```";
+    std::string diagTrackInfo = isDiagTrackRunning ? "DiagTrack time: \n```ansi\n\\u001b[2;45m" + uptimeDiagTrack + "```\n" : "DiagTrack time: \n```diff\n- Service is not running```\n";
+    std::string dpsInfo = isDpsRunning ? "DPS time: \n```ansi\n\\u001b[2;45m" + uptimeDps + "```\n" : "DPS time: \n```diff\n- Service is not running```\n";
+    std::string pcaSvcInfo = isPcaSvcRunning ? "PcaSvc time: \n```ansi\n\\u001b[2;45m" + uptimePcaSvc + "```\n" : "PcaSvc time: \n```diff\n- Service is not running```\n";
+    std::string sgrmBrokerInfo = isSgrmBrokerRunning ? "SgrmBroker time: \n```ansi\n\\u001b[2;45m" + uptimeSgrmBroker + "```\n" : "SgrmBroker time: \n```diff\n- Service is not running```\n";
+    std::string sysMainInfo = isSysMainRunning ? "SysMain time: \n```ansi\n\\u001b[2;45m" + uptimeSysMain + "```\n" : "SysMain time: \n```diff\n- Service is not running```\n";
+    std::string cdpSvcInfo = isCdpSvcRunning ? "CdpSvc time: \n```ansi\n\\u001b[2;45m" + uptimeCdpSvc + "```\n" : "CdpSvc time: \n```diff\n- Service is not running```\n";
+    std::string ssdpsrvInfo = isSsdpsrvRunning ? "Ssdpsrv time: \n```ansi\n\\u001b[2;45m" + uptimeSsdpsrv + "```\n" : "Ssdpsrv time: \n```diff\n- Service is not running```\n";
+    std::string umRdpServiceInfo = isUmRdpServiceRunning ? "UmRdpService time: \n```ansi\n\\u001b[2;45m" + uptimeUmRdpService + "```\n" : "UmRdpService time: \n```diff\n- Service is not running```\n";
 
     std::string payload = "{";
     payload += "\"content\": null,";
