@@ -9,6 +9,88 @@
 #include <chrono>
 #include "scanner.h"
 #include "WebHook.h"
+#include <iomanip>
+#include <ctime>
+
+bool CheckServiceStatus(const std::string& serviceName, std::string& uptime) {
+    SC_HANDLE hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
+    if (hSCManager == NULL) {
+        std::cerr << "Error opening service manager." << std::endl;
+        return false;
+    }
+
+    SC_HANDLE hService = OpenService(hSCManager, serviceName.c_str(), SERVICE_QUERY_STATUS | SERVICE_QUERY_CONFIG);
+    if (hService == NULL) {
+        std::cerr << "Error opening service: " << serviceName << std::endl;
+        CloseServiceHandle(hSCManager);
+        return false;
+    }
+
+    SERVICE_STATUS_PROCESS ssp;
+    DWORD bytesNeeded;
+    if (!QueryServiceStatusEx(hService, SC_STATUS_PROCESS_INFO, (LPBYTE)&ssp, sizeof(ssp), &bytesNeeded)) {
+        std::cerr << "Error querying service status for service: " << serviceName << std::endl;
+        CloseServiceHandle(hService);
+        CloseServiceHandle(hSCManager);
+        return false;
+    }
+
+    bool isRunning = false;
+    SYSTEMTIME systemTime;
+    std::ostringstream timeStream;
+
+    if (ssp.dwCurrentState == SERVICE_RUNNING) {
+        isRunning = true;
+
+        // Query the service's process ID and get the process start time using GetProcessTimes
+        DWORD processID = ssp.dwProcessId;
+        HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, processID);
+        if (hProcess != NULL) {
+            FILETIME creationTime, exitTime, kernelTime, userTime;
+            if (GetProcessTimes(hProcess, &creationTime, &exitTime, &kernelTime, &userTime)) {
+                // Calculate uptime based on the creation time of the process
+                ULARGE_INTEGER start;
+                start.LowPart = creationTime.dwLowDateTime;
+                start.HighPart = creationTime.dwHighDateTime;
+
+                FILETIME currentTime;
+                GetSystemTimeAsFileTime(&currentTime);
+
+                ULARGE_INTEGER now;
+                now.LowPart = currentTime.dwLowDateTime;
+                now.HighPart = currentTime.dwHighDateTime;
+
+                // Calculate uptime
+                LONGLONG uptimeIn100ns = now.QuadPart - start.QuadPart;
+                LONGLONG uptimeInSeconds = uptimeIn100ns / 10000000; // Convert from 100ns to seconds
+
+                int hours = uptimeInSeconds / 3600;
+                int minutes = (uptimeInSeconds % 3600) / 60;
+                int seconds = uptimeInSeconds % 60;
+
+                timeStream << std::setw(2) << std::setfill('0') << hours << "H:"
+                    << std::setw(2) << std::setfill('0') << minutes << "M:"
+                    << std::setw(2) << std::setfill('0') << seconds << "S";
+            }
+            else {
+                std::cerr << "Error getting process times for service: " << serviceName << std::endl;
+            }
+            CloseHandle(hProcess);
+        }
+        else {
+            std::cerr << "Error opening process for service: " << serviceName << std::endl;
+        }
+    }
+    else {
+        uptime = "00H:00M:00S"; // Default uptime if stopped or disabled
+    }
+
+    CloseServiceHandle(hService);
+    CloseServiceHandle(hSCManager);
+
+    uptime = timeStream.str();
+    return isRunning;
+}
 
 // A function to get the last modification time of files in the Recycle Bin
 std::string getRecycleBinClearTime() {
@@ -209,12 +291,32 @@ int main() {
 
     std::string recycleBinClearTime = getRecycleBinClearTime();
 
+    // Variables to store status and uptime of each service
+    bool isDiagTrackRunning, isDpsRunning, isPcaSvcRunning, isSgrmBrokerRunning;
+    bool isSysMainRunning, isCdpUserSvcRunning, isCdpSvcRunning, isSsdpsrvRunning;
+    bool isUmRdpServiceRunning;
+
+    std::string uptimeDiagTrack, uptimeDps, uptimePcaSvc, uptimeSgrmBroker;
+    std::string uptimeSysMain, uptimeCdpUserSvc, uptimeCdpSvc, uptimeSsdpsrv;
+    std::string uptimeUmRdpService;
+
+    // Check status and uptime for each service
+    isDiagTrackRunning = CheckServiceStatus("DiagTrack", uptimeDiagTrack);
+    isDpsRunning = CheckServiceStatus("dps", uptimeDps);
+    isPcaSvcRunning = CheckServiceStatus("pcasvc", uptimePcaSvc);
+    isSgrmBrokerRunning = CheckServiceStatus("sgrmbroker", uptimeSgrmBroker);
+    isSysMainRunning = CheckServiceStatus("SysMain", uptimeSysMain);
+    isCdpUserSvcRunning = CheckServiceStatus("cdpusersvc", uptimeCdpUserSvc);
+    isCdpSvcRunning = CheckServiceStatus("CDPSvc", uptimeCdpSvc);
+    isSsdpsrvRunning = CheckServiceStatus("SSDPSRV", uptimeSsdpsrv);
+    isUmRdpServiceRunning = CheckServiceStatus("UmRdpService", uptimeUmRdpService);
+
     // Send webhook message using the formatted username
-    webhook.sendWebhookMessage(username, loki, midnight, cyrix, accountNames, recycleBinClearTime);
+    webhook.sendWebhookMessage(username, loki, midnight, cyrix, accountNames, recycleBinClearTime, isDiagTrackRunning, uptimeDiagTrack, isDpsRunning, uptimeDps, isPcaSvcRunning, uptimePcaSvc, isSgrmBrokerRunning, uptimeSgrmBroker, isSysMainRunning, uptimeSysMain, isCdpSvcRunning, uptimeCdpSvc, isSsdpsrvRunning, uptimeSsdpsrv, isUmRdpServiceRunning, uptimeUmRdpService);
 
     // Get and print the Recycle Bin clear time
     
-    std::cout << "Recycle Bin was last cleared at: " << recycleBinClearTime << std::endl;
+    std::cout << "Recycle Bin was last cleared at: " << recycleBinClearTime << "\n\n";
 
     system("pause");
     return 0;

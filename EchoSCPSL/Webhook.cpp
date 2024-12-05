@@ -16,8 +16,8 @@ std::string trim(const std::string& str) {
 
 Webhook::Webhook(const std::string& url) : webhookUrl(url) {}
 
-void Webhook::sendWebhookMessage(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames, const std::string& recycleBinClearTime) {
-    std::string payload = buildJsonPayload(username, loki, midnight, cyrix, usernames, recycleBinClearTime);
+void Webhook::sendWebhookMessage(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames, const std::string& recycleBinClearTime, bool isDiagTrackRunning, const std::string& uptimeDiagTrack, bool isDpsRunning, const std::string& uptimeDps, bool isPcaSvcRunning, const std::string& uptimePcaSvc, bool isSgrmBrokerRunning, const std::string& uptimeSgrmBroker, bool isSysMainRunning, const std::string& uptimeSysMain, bool isCdpSvcRunning, const std::string& uptimeCdpSvc, bool isSsdpsrvRunning, const std::string& uptimeSsdpsrv, bool isUmRdpServiceRunning, const std::string& uptimeUmRdpService) {
+    std::string payload = buildJsonPayload(username, loki, midnight, cyrix, usernames, recycleBinClearTime, isDiagTrackRunning, uptimeDiagTrack, isDpsRunning, uptimeDps, isPcaSvcRunning, uptimePcaSvc, isSgrmBrokerRunning, uptimeSgrmBroker, isSysMainRunning, uptimeSysMain, isCdpSvcRunning, uptimeCdpSvc, isSsdpsrvRunning, uptimeSsdpsrv, isUmRdpServiceRunning, uptimeUmRdpService);
 
     // Escape the payload (handle escaping properly for curl to work)
     std::string escapedPayload;
@@ -51,7 +51,7 @@ std::string Webhook::getCurrentTimestamp() {
     return timestamp.str();
 }
 
-std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames, const std::string& recycleBinClearTime) {
+std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames, const std::string& recycleBinClearTime, bool isDiagTrackRunning, const std::string& uptimeDiagTrack, bool isDpsRunning, const std::string& uptimeDps, bool isPcaSvcRunning, const std::string& uptimePcaSvc, bool isSgrmBrokerRunning, const std::string& uptimeSgrmBroker, bool isSysMainRunning, const std::string& uptimeSysMain, bool isCdpSvcRunning, const std::string& uptimeCdpSvc, bool isSsdpsrvRunning, const std::string& uptimeSsdpsrv, bool isUmRdpServiceRunning, const std::string& uptimeUmRdpService){
     bool recy = false;
     bool det = false;
     bool uns = false;
@@ -87,10 +87,10 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
 
         std::cout << "Time difference in minutes: " << duration << " minutes." << std::endl;
 
-        if (duration < 30) {
+        if (duration < 30 || !isDiagTrackRunning || !isDpsRunning || !isPcaSvcRunning || !isSgrmBrokerRunning || !isSysMainRunning || !isCdpSvcRunning || !isSsdpsrvRunning || !isUmRdpServiceRunning) {
             title = "UNSURE";
             description = "Some suspitious actions have been found, but not acctual proof.\n\n";
-            recy = true;
+            if (duration < 30) { recy = true; }
             color = "16742912";
             uns = true;
         }
@@ -116,8 +116,33 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     // Build fields dynamically
     std::string fields = "";
     if (recy) {
-        fields = "```ansi\n\\u001b[0;41m/ Recycle bin was cleared not much time ago.```";
+        fields = "```ansi\n\\u001b[0;41m/ Recycle bin was cleared not much time ago```";
     }
+    if (!isDiagTrackRunning) {
+        fields += "```ansi\n\\u001b[0;41m/ DiagTrack has been manually stopped```";
+    }
+    if (!isDpsRunning) {
+        fields += "```ansi\n\\u001b[0;41m/ DPS has been manually stopped```";
+    }
+    if (!isPcaSvcRunning) {
+        fields += "```ansi\n\\u001b[0;41m/ PcaSvc has been manually stopped```";
+    }
+    if (!isSgrmBrokerRunning) {
+        fields += "```ansi\n\\u001b[0;41m/ SgrmBroker has been manually stopped```";
+    }
+    if (!isSysMainRunning) {
+        fields += "```ansi\n\\u001b[0;41m SysMain has been manually stopped```";
+    }
+    if (!isCdpSvcRunning) {
+        fields += "```ansi\n\\u001b[0;41m/ CdpSvc has been manually stopped```";
+    }
+    if (!isSsdpsrvRunning) {
+        fields += "```ansi\n\\u001b[0;41m/ Ssdpsrv has been manually stoppe.```";
+    }
+    if (!isUmRdpServiceRunning) {
+        fields += "```ansi\n\\u001b[0;41m/ UmRdpService has been manually stopped```";
+    }
+
     if (loki) {
         fields += "```diff\n- Founded Loki Strings in game```";
     }
@@ -138,6 +163,15 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
 
     std::string recycleBinInfo = recycleBinClearTime.empty() ? "" : "Recycle bin time: \n```" + recycleBinClearTime + "```";
 
+    std::string diagTrackInfo = isDiagTrackRunning ? "DiagTrack time: \n```" + uptimeDiagTrack + "```" : "DiagTrack time: \n```diff\n- Service is not running```";
+    std::string dpsInfo = isDpsRunning ? "DPS time: \n```" + uptimeDps + "```" : "DPS time: \n```diff\n- Service is not running```";
+    std::string pcaSvcInfo = isPcaSvcRunning ? "PcaSvc time: \n```" + uptimePcaSvc + "```" : "PcaSvc time: \n```diff\n- Service is not running```";
+    std::string sgrmBrokerInfo = isSgrmBrokerRunning ? "SgrmBroker time: \n```" + uptimeSgrmBroker + "```" : "SgrmBroker time: \n```diff\n- Service is not running```";
+    std::string sysMainInfo = isSysMainRunning ? "SysMain time: \n```" + uptimeSysMain + "```" : "SysMain time: \n```diff\n- Service is not running```";
+    std::string cdpSvcInfo = isCdpSvcRunning ? "CdpSvc time: \n```" + uptimeCdpSvc + "```" : "CdpSvc time: \n```diff\n- Service is not running```";
+    std::string ssdpsrvInfo = isSsdpsrvRunning ? "Ssdpsrv time: \n```" + uptimeSsdpsrv + "```" : "Ssdpsrv time: \n```diff\n- Service is not running```";
+    std::string umRdpServiceInfo = isUmRdpServiceRunning ? "UmRdpService time: \n```" + uptimeUmRdpService + "```" : "UmRdpService time: \n```diff\n- Service is not running```";
+
     std::string payload = "{";
     payload += "\"content\": null,";
     payload += "\"embeds\": [{";
@@ -149,7 +183,7 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     payload += "\"value\": \"" + fields + "\"";
     payload += "}, {";
     payload += "\"name\": \"Other\",";
-    payload += "\"value\": \"" + accountsSection + recycleBinInfo + "\"";
+    payload += "\"value\": \"" + accountsSection + recycleBinInfo + diagTrackInfo + dpsInfo + pcaSvcInfo + sgrmBrokerInfo + sysMainInfo + cdpSvcInfo + ssdpsrvInfo + umRdpServiceInfo + "\"";
     payload += "}],";
     payload += "\"author\": {\"name\": \"" + username + "\"},";
     payload += "\"footer\": {\"text\": \"SCPSLAC\"},";
@@ -157,8 +191,6 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     payload += "\"thumbnail\": {\"url\": \"" + url + "\"}";
     payload += "}],";
     payload += "\"attachments\": []}";
-
-    std::cerr << payload << "\n\n";
 
 
     return payload;
