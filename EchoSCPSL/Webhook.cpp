@@ -16,8 +16,8 @@ std::string trim(const std::string& str) {
 
 Webhook::Webhook(const std::string& url) : webhookUrl(url) {}
 
-void Webhook::sendWebhookMessage(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames, const std::string& recycleBinClearTime, bool isDiagTrackRunning, const std::string& uptimeDiagTrack, bool isDpsRunning, const std::string& uptimeDps, bool isPcaSvcRunning, const std::string& uptimePcaSvc, bool isSgrmBrokerRunning, const std::string& uptimeSgrmBroker, bool isSysMainRunning, const std::string& uptimeSysMain, bool isCdpSvcRunning, const std::string& uptimeCdpSvc, bool isSsdpsrvRunning, const std::string& uptimeSsdpsrv, bool isUmRdpServiceRunning, const std::string& uptimeUmRdpService) {
-    std::string payload = buildJsonPayload(username, loki, midnight, cyrix, usernames, recycleBinClearTime, isDiagTrackRunning, uptimeDiagTrack, isDpsRunning, uptimeDps, isPcaSvcRunning, uptimePcaSvc, isSgrmBrokerRunning, uptimeSgrmBroker, isSysMainRunning, uptimeSysMain, isCdpSvcRunning, uptimeCdpSvc, isSsdpsrvRunning, uptimeSsdpsrv, isUmRdpServiceRunning, uptimeUmRdpService);
+void Webhook::sendWebhookMessage(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames, const std::string& recycleBinClearTime, bool isDiagTrackRunning, const std::string& uptimeDiagTrack, bool isDpsRunning, const std::string& uptimeDps, bool isPcaSvcRunning, const std::string& uptimePcaSvc, bool isSysMainRunning, const std::string& uptimeSysMain, bool isCdpSvcRunning, const std::string& uptimeCdpSvc, bool isSsdpsrvRunning, const std::string& uptimeSsdpsrv, bool isUmRdpServiceRunning, const std::string& uptimeUmRdpService) {
+    std::string payload = buildJsonPayload(username, loki, midnight, cyrix, usernames, recycleBinClearTime, isDiagTrackRunning, uptimeDiagTrack, isDpsRunning, uptimeDps, isPcaSvcRunning, uptimePcaSvc, isSysMainRunning, uptimeSysMain, isCdpSvcRunning, uptimeCdpSvc, isSsdpsrvRunning, uptimeSsdpsrv, isUmRdpServiceRunning, uptimeUmRdpService);
 
     // Escape the payload (handle escaping properly for curl to work)
     std::string escapedPayload;
@@ -51,7 +51,7 @@ std::string Webhook::getCurrentTimestamp() {
     return timestamp.str();
 }
 
-std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames, const std::string& recycleBinClearTime, bool isDiagTrackRunning, const std::string& uptimeDiagTrack, bool isDpsRunning, const std::string& uptimeDps, bool isPcaSvcRunning, const std::string& uptimePcaSvc, bool isSgrmBrokerRunning, const std::string& uptimeSgrmBroker, bool isSysMainRunning, const std::string& uptimeSysMain, bool isCdpSvcRunning, const std::string& uptimeCdpSvc, bool isSsdpsrvRunning, const std::string& uptimeSsdpsrv, bool isUmRdpServiceRunning, const std::string& uptimeUmRdpService){
+std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames, const std::string& recycleBinClearTime, bool isDiagTrackRunning, const std::string& uptimeDiagTrack, bool isDpsRunning, const std::string& uptimeDps, bool isPcaSvcRunning, const std::string& uptimePcaSvc, bool isSysMainRunning, const std::string& uptimeSysMain, bool isCdpSvcRunning, const std::string& uptimeCdpSvc, bool isSsdpsrvRunning, const std::string& uptimeSsdpsrv, bool isUmRdpServiceRunning, const std::string& uptimeUmRdpService){
     bool recy = false;
     bool det = false;
     bool uns = false;
@@ -87,7 +87,7 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
 
         std::cout << "Time difference in minutes: " << duration << " minutes." << std::endl;
 
-        if (duration < 30 || !isDiagTrackRunning || !isDpsRunning || !isPcaSvcRunning || !isSgrmBrokerRunning || !isSysMainRunning || !isCdpSvcRunning || !isSsdpsrvRunning || !isUmRdpServiceRunning) {
+        if (duration < 30 || !isDiagTrackRunning || !isDpsRunning || !isPcaSvcRunning || !isSysMainRunning || !isCdpSvcRunning || !isSsdpsrvRunning || !isUmRdpServiceRunning) {
             title = "UNSURE";
             description = "Some suspitious actions have been found, but not acctual proof.\n\n";
             if (duration < 30) { recy = true; }
@@ -127,9 +127,6 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     if (!isPcaSvcRunning) {
         fields += "```ansi\n\\u001b[0;41m/ PcaSvc has been manually stopped```";
     }
-    if (!isSgrmBrokerRunning) {
-        fields += "```ansi\n\\u001b[0;41m/ SgrmBroker has been manually stopped```";
-    }
     if (!isSysMainRunning) {
         fields += "```ansi\n\\u001b[0;41m SysMain has been manually stopped```";
     }
@@ -166,7 +163,6 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     std::string diagTrackInfo = isDiagTrackRunning ? "DiagTrack time: \n```ansi\n\\u001b[2;45m" + uptimeDiagTrack + "```\n" : "DiagTrack time: \n```diff\n- Service is not running```\n";
     std::string dpsInfo = isDpsRunning ? "DPS time: \n```ansi\n\\u001b[2;45m" + uptimeDps + "```\n" : "DPS time: \n```diff\n- Service is not running```\n";
     std::string pcaSvcInfo = isPcaSvcRunning ? "PcaSvc time: \n```ansi\n\\u001b[2;45m" + uptimePcaSvc + "```\n" : "PcaSvc time: \n```diff\n- Service is not running```\n";
-    std::string sgrmBrokerInfo = isSgrmBrokerRunning ? "SgrmBroker time: \n```ansi\n\\u001b[2;45m" + uptimeSgrmBroker + "```\n" : "SgrmBroker time: \n```diff\n- Service is not running```\n";
     std::string sysMainInfo = isSysMainRunning ? "SysMain time: \n```ansi\n\\u001b[2;45m" + uptimeSysMain + "```\n" : "SysMain time: \n```diff\n- Service is not running```\n";
     std::string cdpSvcInfo = isCdpSvcRunning ? "CdpSvc time: \n```ansi\n\\u001b[2;45m" + uptimeCdpSvc + "```\n" : "CdpSvc time: \n```diff\n- Service is not running```\n";
     std::string ssdpsrvInfo = isSsdpsrvRunning ? "Ssdpsrv time: \n```ansi\n\\u001b[2;45m" + uptimeSsdpsrv + "```\n" : "Ssdpsrv time: \n```diff\n- Service is not running```\n";
@@ -183,7 +179,7 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     payload += "\"value\": \"" + fields + "\"";
     payload += "}, {";
     payload += "\"name\": \"Other\",";
-    payload += "\"value\": \"" + accountsSection + recycleBinInfo + diagTrackInfo + dpsInfo + pcaSvcInfo + sgrmBrokerInfo + sysMainInfo + cdpSvcInfo + ssdpsrvInfo + umRdpServiceInfo + "\"";
+    payload += "\"value\": \"" + accountsSection + recycleBinInfo + diagTrackInfo + dpsInfo + pcaSvcInfo + sysMainInfo + cdpSvcInfo + ssdpsrvInfo + umRdpServiceInfo + "\"";
     payload += "}],";
     payload += "\"author\": {\"name\": \"" + username + "\"},";
     payload += "\"footer\": {\"text\": \"SCPSLAC\"},";

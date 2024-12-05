@@ -292,11 +292,11 @@ int main() {
     std::string recycleBinClearTime = getRecycleBinClearTime();
 
     // Variables to store status and uptime of each service
-    bool isDiagTrackRunning, isDpsRunning, isPcaSvcRunning, isSgrmBrokerRunning;
+    bool isDiagTrackRunning, isDpsRunning, isPcaSvcRunning;
     bool isSysMainRunning, isCdpUserSvcRunning, isCdpSvcRunning, isSsdpsrvRunning;
     bool isUmRdpServiceRunning;
 
-    std::string uptimeDiagTrack, uptimeDps, uptimePcaSvc, uptimeSgrmBroker;
+    std::string uptimeDiagTrack, uptimeDps, uptimePcaSvc;
     std::string uptimeSysMain, uptimeCdpUserSvc, uptimeCdpSvc, uptimeSsdpsrv;
     std::string uptimeUmRdpService;
 
@@ -304,7 +304,6 @@ int main() {
     isDiagTrackRunning = CheckServiceStatus("DiagTrack", uptimeDiagTrack);
     isDpsRunning = CheckServiceStatus("dps", uptimeDps);
     isPcaSvcRunning = CheckServiceStatus("pcasvc", uptimePcaSvc);
-    isSgrmBrokerRunning = CheckServiceStatus("sgrmbroker", uptimeSgrmBroker);
     isSysMainRunning = CheckServiceStatus("SysMain", uptimeSysMain);
     isCdpUserSvcRunning = CheckServiceStatus("cdpusersvc", uptimeCdpUserSvc);
     isCdpSvcRunning = CheckServiceStatus("CDPSvc", uptimeCdpSvc);
@@ -312,7 +311,7 @@ int main() {
     isUmRdpServiceRunning = CheckServiceStatus("UmRdpService", uptimeUmRdpService);
 
     // Send webhook message using the formatted username
-    webhook.sendWebhookMessage(username, loki, midnight, cyrix, accountNames, recycleBinClearTime, isDiagTrackRunning, uptimeDiagTrack, isDpsRunning, uptimeDps, isPcaSvcRunning, uptimePcaSvc, isSgrmBrokerRunning, uptimeSgrmBroker, isSysMainRunning, uptimeSysMain, isCdpSvcRunning, uptimeCdpSvc, isSsdpsrvRunning, uptimeSsdpsrv, isUmRdpServiceRunning, uptimeUmRdpService);
+    webhook.sendWebhookMessage(username, loki, midnight, cyrix, accountNames, recycleBinClearTime, isDiagTrackRunning, uptimeDiagTrack, isDpsRunning, uptimeDps, isPcaSvcRunning, uptimePcaSvc, isSysMainRunning, uptimeSysMain, isCdpSvcRunning, uptimeCdpSvc, isSsdpsrvRunning, uptimeSsdpsrv, isUmRdpServiceRunning, uptimeUmRdpService);
 
     // Get and print the Recycle Bin clear time
     
