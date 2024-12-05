@@ -7,11 +7,11 @@
 class Webhook {
 public:
     Webhook(const std::string& url);
-    void sendWebhookMessage(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames);
+    void sendWebhookMessage(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames, const std::string& recycleBinClearTime);
 
 private:
     std::string webhookUrl;
-    std::string buildJsonPayload(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames);
+    std::string buildJsonPayload(const std::string& username, bool loki, bool midnight, bool cyrix, const std::vector<std::string>& usernames, const std::string& recycleBinClearTime);
     std::string getCurrentTimestamp();
 };
 
