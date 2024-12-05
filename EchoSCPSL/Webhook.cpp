@@ -116,7 +116,7 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     // Build fields dynamically
     std::string fields = "";
     if (recy) {
-        fields = "```ansi\n\\u001b[0;41m/ Recycle bin was cleared not much time ago```";
+        fields = "```ansi\n\\u001b[0;41m/ Recycle bin was modified not much time ago```";
     }
     if (!isDiagTrackRunning) {
         fields += "```ansi\n\\u001b[0;41m/ DiagTrack has been manually stopped```";
