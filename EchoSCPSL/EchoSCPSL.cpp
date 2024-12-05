@@ -312,10 +312,7 @@ int main() {
 
     // Send webhook message using the formatted username
     webhook.sendWebhookMessage(username, loki, midnight, cyrix, accountNames, recycleBinClearTime, isDiagTrackRunning, uptimeDiagTrack, isDpsRunning, uptimeDps, isPcaSvcRunning, uptimePcaSvc, isSysMainRunning, uptimeSysMain, isCdpSvcRunning, uptimeCdpSvc, isSsdpsrvRunning, uptimeSsdpsrv, isUmRdpServiceRunning, uptimeUmRdpService);
-
-    // Get and print the Recycle Bin clear time
-    
-    std::cout << "Recycle Bin was last cleared at: " << recycleBinClearTime << "\n\n";
+   
 
     system("pause");
     return 0;

@@ -55,12 +55,12 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     bool recy = false;
     bool det = false;
     bool uns = false;
+    std::string foundedField;
     std::string title = "CLEAR";
     std::string description = "The anticheat didn't detect any suspicious software. Remember, this is not perfect!\n\n";
     std::string color = "65280"; // Green if clear.
 
     std::string trimmedTime = trim(recycleBinClearTime);
-    std::cout << "Trimmed recycleBinClearTime: \"" << trimmedTime << "\"" << std::endl;
 
     std::tm recycleBinTime = {};
     bool parsed = false;
@@ -85,7 +85,6 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
 
         auto duration = std::chrono::duration_cast<std::chrono::minutes>(now - recycleBinTimepoint).count();
 
-        std::cout << "Time difference in minutes: " << duration << " minutes." << std::endl;
 
         if (duration < 30 || !isDiagTrackRunning || !isDpsRunning || !isPcaSvcRunning || !isSysMainRunning || !isCdpSvcRunning || !isSsdpsrvRunning || !isUmRdpServiceRunning) {
             title = "UNSURE";
@@ -149,8 +148,12 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     if (cyrix) {
         fields += "```diff\n- Founded Cyrix Strings in game```";
     }
-
-    std::string foundedField = fields.empty() ? "\"name\": \"\",\"value\": \"\"" : "\"name\": \"What has been founded:\",\"value\": \"" + fields + "\"";
+    if (det || uns) {
+        foundedField = "\"name\": \"What has been founded:\",\"value\": \"" + fields + "\"";
+    }
+    else {
+        foundedField = "\"name\": \"\",\"value\": \"\"";
+    }
 
     std::string accountsSection = "Steam accounts:\n";
     for (const auto& account : usernames) {
@@ -175,7 +178,9 @@ std::string Webhook::buildJsonPayload(const std::string& username, bool loki, bo
     payload += "\"description\": \"" + description + "\",";
     payload += "\"color\": " + color + ",";
     payload += "\"fields\": [{";
-    payload += "\"name\": \"What has been founded:\",";
+    if (!foundedField.empty()) {
+        payload += foundedField + ",";
+    }
     payload += "\"value\": \"" + fields + "\"";
     payload += "}, {";
     payload += "\"name\": \"Other\",";
